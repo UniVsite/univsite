@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>大学VTuberリスト（共有版）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF7F5; --ink: #2B2233; --ink-soft: #6B6178; --line: #E4DCE6;
+    --accent: #D84E7A; --accent-soft: #F7DDE6; --teal: #2F9E93; --teal-soft: #DDF1EE;
+    --card: #FFFFFF; --warn: #B5591E; --warn-soft: #FBEADA;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1C1720; --ink: #F1EAF0; --ink-soft: #B4A9BC; --line: #3A3140;
+      --accent: #F080A5; --accent-soft: #3A2530; --teal: #5FCFC2; --teal-soft: #1C3532;
+      --card: #251E2A; --warn: #F0B27A; --warn-soft: #3A2A18;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { height: 100%; }
+  body {
+    margin: 0; min-height: 100%; background: var(--paper); color: var(--ink);
+    font-family: "Noto Sans JP", sans-serif; line-height: 1.6;
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 32px 20px 64px; }
+  header.page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  h1 { font-family: "Zen Maru Gothic", sans-serif; font-weight: 900; font-size: 26px; margin: 0; }
+  h1 span { color: var(--accent); }
+  .count { font-size: 13px; color: var(--ink-soft); }
+  .sync-status { font-size: 12px; color: var(--ink-soft); margin-bottom: 24px; display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+  .dot.off { background: var(--warn); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; margin-bottom: 24px; }
+  .card h2 { font-family: "Zen Maru Gothic", sans-serif; font-size: 15px; font-weight: 700; margin: 0 0 16px; }
+
+  .setup-notice { background: var(--warn-soft); border: 1px solid var(--warn); border-radius: 14px; padding: 20px; margin-bottom: 24px; font-size: 14px; }
+  .setup-notice h2 { margin-top: 0; color: var(--warn); }
+  .setup-notice code { display: block; background: rgba(0,0,0,0.06); padding: 10px 12px; border-radius: 8px; margin: 10px 0; font-size: 12px; word-break: break-all; }
+
+  form.entry-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 820px) { form.entry-form { grid-template-columns: repeat(2, 1fr); } }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.wide { grid-column: 1 / -1; }
+  .field label { font-size: 12px; color: var(--ink-soft); }
+  .field input, .field select, .field textarea {
+    font: inherit; font-size: 14px; padding: 9px 10px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+  }
+  .field textarea { resize: vertical; min-height: 60px; font-family: inherit; }
+  .field .hint { font-size: 11px; color: var(--ink-soft); }
+  .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible, button:focus-visible, th button:focus-visible { outline: 2px solid var(--accent); }
+  .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 2px; }
+  button { font: inherit; font-size: 14px; font-weight: 500; border: none; border-radius: 10px; padding: 10px 18px; cursor: pointer; transition: transform 0.12s ease, opacity 0.12s ease; }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .btn-primary:hover { opacity: 0.9; }
+
+  .table-scroll { overflow-x: auto; border-radius: 14px; border: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; background: var(--card); }
+  thead th { text-align: left; padding: 0; background: var(--accent-soft); border-bottom: 1px solid var(--line); }
+  thead th button { width: 100%; background: transparent; border-radius: 0; padding: 12px 14px; display: flex; align-items: center; gap: 6px; justify-content: space-between; font-weight: 600; font-size: 13px; text-align: left; }
+  thead th button:hover { background: rgba(0,0,0,0.04); }
+  .arrow { font-size: 11px; color: var(--accent); min-width: 12px; }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 14px; vertical-align: top; }
+  tbody tr.main-row:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(0,0,0,0.02); }
+  .kana { font-size: 12px; color: var(--ink-soft); display: block; margin-top: 2px; }
+  .badge { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 999px; background: var(--teal-soft); color: var(--teal); }
+  .badge-status { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 999px; font-weight: 500; }
+  .badge-status.active { background: var(--teal-soft); color: var(--teal); }
+  .badge-status.retired { background: var(--accent-soft); color: var(--accent); }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); color: var(--ink-soft); margin: 2px 4px 2px 0; }
+  .row-actions { display: flex; gap: 8px; }
+  .row-actions button { padding: 5px 10px; font-size: 12px; }
+  .detail-row td { background: var(--paper); font-size: 13px; color: var(--ink-soft); padding: 10px 14px 16px; }
+  .detail-row.hidden { display: none; }
+  .empty { padding: 40px 20px; text-align: center; color: var(--ink-soft); font-size: 14px; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 12px; flex-wrap: wrap; }
+  .search input { font: inherit; font-size: 14px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); min-width: 220px; }
+  .error-banner { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn); border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px; display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page-head">
+    <h1>大学VTuber<span>リスト</span></h1>
+    <div class="count" id="count">読み込み中…</div>
+  </header>
+  <div class="sync-status"><span class="dot" id="sync-dot"></span><span id="sync-text">接続確認中…</span></div>
+
+  <div class="setup-notice" id="setup-notice" style="display:none;">
+    <h2>⚙️ 初期設定が必要です</h2>
+    <p>このページは外部のデータベース（Supabase）を使って、見た人・編集した人全員でデータを共有します。まだ接続先が設定されていません。ファイル冒頭の <code>&lt;script&gt;</code> 内、以下の2行を自分のSupabaseプロジェクトの値に書き換えてください。</p>
+    <code>const SUPABASE_URL = "https://uudrybrzslpumopkatbg.supabase.co"
+const SUPABASE_ANON_KEY = "https://uudrybrzslpumopkatbg.supabase.co";</code>
+    <p>プロジェクトのSQL Editorで、同封の <code>supabase-setup.sql</code> を一度実行してテーブルを作成してください。設定後、GitHub PagesなどにこのHTMLをアップロードすれば、誰がアクセスしても同じデータが見えます。</p>
+  </div>
+
+  <div class="error-banner" id="error-banner"></div>
+
+  <div class="card" id="form-card">
+    <h2 id="form-title">新しく登録する</h2>
+    <form class="entry-form" id="entry-form">
+      <div class="field"><label for="f-agency">所属事務所</label><input type="text" id="f-agency" placeholder="例：にじさんじ"></div>
+      <div class="field"><label for="f-name">名前</label><input type="text" id="f-name" placeholder="例：星影 すばる"></div>
+      <div class="field"><label for="f-kana">名前の読み</label><input type="text" id="f-kana" placeholder="例：ほしかげ すばる"></div>
+      <div class="field"><label for="f-debut">デビュー年月日</label><input type="date" id="f-debut"></div>
+      <div class="field"><label for="f-birthday">誕生日</label><input type="text" id="f-birthday" placeholder="例：8月15日"></div>
+      <div class="field"><label for="f-species">種族</label><input type="text" id="f-species" placeholder="例：狼"></div>
+      <div class="field">
+        <label for="f-content">コンテンツ</label>
+        <input type="text" id="f-content" placeholder="例：歌ってみた, ゲーム実況">
+        <span class="hint">カンマ区切りで複数入力できます</span>
+      </div>
+      <div class="field">
+        <label for="f-status">状況</label>
+        <select id="f-status">
+          <option value="active">活動中</option>
+          <option value="retired">卒業・引退</option>
+        </select>
+      </div>
+      <div class="field wide">
+        <label for="f-overview">概要</label>
+        <textarea id="f-overview" placeholder="自由に説明を書いてください"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-ghost" id="cancel-edit" style="display:none;">キャンセル</button>
+        <button type="submit" class="btn-primary" id="submit-btn">追加する</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="toolbar">
+    <div class="search"><input type="text" id="search" placeholder="名前・事務所・種族・コンテンツで検索"></div>
+    <button type="button" class="btn-ghost" id="refresh-btn">再読み込み</button>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th><button data-key="agency" type="button">所属事務所 <span class="arrow"></span></button></th>
+          <th><button data-key="name" type="button">名前 <span class="arrow"></span></button></th>
+          <th><button data-key="debut" type="button">デビュー年月日 <span class="arrow"></span></button></th>
+          <th><button data-key="birthday" type="button">誕生日 <span class="arrow"></span></button></th>
+          <th><button data-key="species" type="button">種族 <span class="arrow"></span></button></th>
+          <th>コンテンツ</th>
+          <th><button data-key="status" type="button">状況 <span class="arrow"></span></button></th>
+          <th style="width:140px;"></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="empty-msg" style="display:none;"></div>
+</div>
+
+<script>
+// ==== ここを自分のSupabaseプロジェクトの値に書き換えてください ====
+const SUPABASE_URL = "https://uudrybrzslpumopkatbg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1ZHJ5YnJ6c2xwdW1vcGthdGJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzUxODgsImV4cCI6MjEwNTU1MTE4OH0.m4WphxgeiZWlQsOzHUw1NhVwgxc84DgtG42WXNspsOg";
+// ================================================================
+
+const CONFIGURED = !SUPABASE_URL.includes("YOUR-PROJECT") && !SUPABASE_ANON_KEY.includes("YOUR-ANON-KEY");
+const POLL_MS = 15000;
+
+(function () {
+  let data = [];
+  let sortKey = "agency";
+  let sortDir = 1;
+  let editingId = null;
+  let openDetailId = null;
+  let pollTimer = null;
+
+  const tbody = document.getElementById("tbody");
+  const emptyMsg = document.getElementById("empty-msg");
+  const countEl = document.getElementById("count");
+  const searchInput = document.getElementById("search");
+  const syncDot = document.getElementById("sync-dot");
+  const syncText = document.getElementById("sync-text");
+  const errorBanner = document.getElementById("error-banner");
+  const setupNotice = document.getElementById("setup-notice");
+  const formCard = document.getElementById("form-card");
+  const submitBtn = document.getElementById("submit-btn");
+
+  if (!CONFIGURED) {
+    setupNotice.style.display = "block";
+    formCard.style.display = "none";
+    document.querySelector(".toolbar").style.display = "none";
+    syncText.textContent = "未接続（下の案内を確認してください）";
+    syncDot.classList.add("off");
+    countEl.textContent = "—";
+    return;
+  }
+
+  async function api(path, options = {}) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      ...options,
+      headers: {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": options.prefer || "return=representation",
+        ...(options.headers || {}),
+      },
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`API ${res.status}: ${text || res.statusText}`);
+    }
+    if (res.status === 204) return null;
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  function showError(msg) { errorBanner.textContent = msg; errorBanner.style.display = "block"; }
+  function clearError() { errorBanner.style.display = "none"; }
+  function setSyncOk() { syncDot.classList.remove("off"); syncText.textContent = "全員と共有中（他の人の変更も自動で反映されます）"; }
+  function setSyncFail() { syncDot.classList.add("off"); syncText.textContent = "データベースに接続できません。設定を確認してください。"; }
+
+  async function loadData() {
+    try {
+      const rows = await api("vtubers?select=*");
+      data = rows || [];
+      clearError();
+      setSyncOk();
+      render();
+    } catch (e) {
+      console.error(e);
+      setSyncFail();
+      showError("読み込みに失敗しました：" + e.message);
+    }
+  }
+
+  function fmtDate(d) {
+    if (!d) return "—";
+    const parts = d.split("-");
+    if (parts.length !== 3) return d;
+    return `${parts[0]}年${parseInt(parts[1], 10)}月${parseInt(parts[2], 10)}日`;
+  }
+  function statusBadge(status) {
+    if (status === "retired") return '<span class="badge-status retired">卒業・引退</span>';
+    return '<span class="badge-status active">活動中</span>';
+  }
+  function contentTags(content) {
+    if (!content) return "—";
+    return content.split(",").map(s => s.trim()).filter(Boolean)
+      .map(s => `<span class="tag">${escapeHtml(s)}</span>`).join("");
+  }
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str == null ? "" : str;
+    return div.innerHTML;
+  }
+
+  function render() {
+    const query = searchInput.value.trim().toLowerCase();
+    let rows = data.filter(r => {
+      if (!query) return true;
+      return [r.agency, r.name, r.kana, r.species, r.content, r.overview].join(" ").toLowerCase().includes(query);
+    });
+    rows.sort((a, b) => {
+      let va = a[sortKey] || (sortKey === "debut" ? "0000-00-00" : "");
+      let vb = b[sortKey] || (sortKey === "debut" ? "0000-00-00" : "");
+      va = va.toString().toLowerCase();
+      vb = vb.toString().toLowerCase();
+      if (va < vb) return -1 * sortDir;
+      if (va > vb) return 1 * sortDir;
+      return 0;
+    });
+
+    countEl.textContent = `${data.length}件登録中`;
+    tbody.innerHTML = "";
+    if (rows.length === 0) {
+      emptyMsg.style.display = "block";
+      emptyMsg.textContent = data.length === 0
+        ? "まだ登録がありません。上のフォームから追加してください。"
+        : "検索条件に一致するVTuberが見つかりません。";
+      return;
+    }
+    emptyMsg.style.display = "none";
+
+    for (const r of rows) {
+      const tr = document.createElement("tr");
+      tr.className = "main-row";
+      tr.innerHTML = `
+        <td>${r.agency ? escapeHtml(r.agency) : '<span class="badge">個人勢</span>'}</td>
+        <td>${escapeHtml(r.name || "")}${r.kana ? `<span class="kana">${escapeHtml(r.kana)}</span>` : ""}</td>
+        <td>${fmtDate(r.debut)}</td>
+        <td>${escapeHtml(r.birthday || "—")}</td>
+        <td>${escapeHtml(r.species || "—")}</td>
+        <td>${contentTags(r.content)}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td>
+          <div class="row-actions">
+            <button type="button" class="btn-ghost" data-action="detail" data-id="${r.id}">概要</button>
+            <button type="button" class="btn-ghost" data-action="edit" data-id="${r.id}">編集</button>
+            <button type="button" class="btn-ghost" data-action="delete" data-id="${r.id}">削除</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+
+      const detailTr = document.createElement("tr");
+      detailTr.className = "detail-row" + (openDetailId === r.id ? "" : " hidden");
+      const td = document.createElement("td");
+      td.colSpan = 8;
+      td.textContent = r.overview ? r.overview : "概要は登録されていません。";
+      detailTr.appendChild(td);
+      tbody.appendChild(detailTr);
+    }
+  }
+
+  document.querySelectorAll("thead button[data-key]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.key;
+      if (sortKey === key) sortDir *= -1;
+      else { sortKey = key; sortDir = 1; }
+      document.querySelectorAll(".arrow").forEach(a => a.textContent = "");
+      btn.querySelector(".arrow").textContent = sortDir === 1 ? "▲" : "▼";
+      render();
+    });
+  });
+  document.querySelector('thead button[data-key="agency"] .arrow').textContent = "▲";
+
+  const form = document.getElementById("entry-form");
+  const fAgency = document.getElementById("f-agency");
+  const fName = document.getElementById("f-name");
+  const fKana = document.getElementById("f-kana");
+  const fDebut = document.getElementById("f-debut");
+  const fBirthday = document.getElementById("f-birthday");
+  const fSpecies = document.getElementById("f-species");
+  const fContent = document.getElementById("f-content");
+  const fStatus = document.getElementById("f-status");
+  const fOverview = document.getElementById("f-overview");
+  const cancelBtn = document.getElementById("cancel-edit");
+  const formTitle = document.getElementById("form-title");
+
+  function exitEditMode() {
+    editingId = null;
+    submitBtn.textContent = "追加する";
+    formTitle.textContent = "新しく登録する";
+    cancelBtn.style.display = "none";
+    form.reset();
+  }
+  cancelBtn.addEventListener("click", exitEditMode);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!fName.value.trim()) { fName.focus(); return; }
+    const entry = {
+      agency: fAgency.value.trim(),
+      name: fName.value.trim(),
+      kana: fKana.value.trim(),
+      debut: fDebut.value || null,
+      birthday: fBirthday.value.trim(),
+      species: fSpecies.value.trim(),
+      content: fContent.value.trim(),
+      status: fStatus.value,
+      overview: fOverview.value.trim(),
+    };
+    submitBtn.disabled = true;
+    try {
+      if (editingId) {
+        await api(`vtubers?id=eq.${editingId}`, { method: "PATCH", body: JSON.stringify(entry) });
+        exitEditMode();
+      } else {
+        await api("vtubers", { method: "POST", body: JSON.stringify(entry) });
+        form.reset();
+      }
+      clearError();
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      showError("保存に失敗しました：" + err.message);
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  tbody.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.action === "delete") {
+      const target = data.find(d => d.id === id);
+      if (target && confirm(`「${target.name}」を削除しますか？（全員のリストから消えます）`)) {
+        try {
+          await api(`vtubers?id=eq.${id}`, { method: "DELETE", prefer: "return=minimal" });
+          await loadData();
+        } catch (err) {
+          console.error(err);
+          showError("削除に失敗しました：" + err.message);
+        }
+      }
+    } else if (btn.dataset.action === "edit") {
+      const target = data.find(d => d.id === id);
+      if (!target) return;
+      editingId = id;
+      fAgency.value = target.agency || "";
+      fName.value = target.name || "";
+      fKana.value = target.kana || "";
+      fDebut.value = target.debut || "";
+      fBirthday.value = target.birthday || "";
+      fSpecies.value = target.species || "";
+      fContent.value = target.content || "";
+      fStatus.value = target.status || "active";
+      fOverview.value = target.overview || "";
+      submitBtn.textContent = "更新する";
+      formTitle.textContent = "編集中";
+      cancelBtn.style.display = "inline-block";
+      fAgency.focus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (btn.dataset.action === "detail") {
+      openDetailId = openDetailId === id ? null : id;
+      render();
+    }
+  });
+
+  searchInput.addEventListener("input", render);
+  document.getElementById("refresh-btn").addEventListener("click", () => loadData());
+
+  loadData();
+  pollTimer = setInterval(() => loadData(), POLL_MS);
+  window.addEventListener("beforeunload", () => clearInterval(pollTimer));
+})();
+</script>
+</body>
+</html>
